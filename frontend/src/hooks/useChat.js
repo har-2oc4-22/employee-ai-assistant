@@ -76,7 +76,9 @@ export function useChat() {
       setTimeout(scrollToBottom, 100);
 
     } catch (err) {
-      const errorMsg = err.response?.data?.detail
+      // friendlyMessage is set by the Axios interceptor in services/api.js
+      const errorMsg = err.friendlyMessage
+        || err.response?.data?.detail
         || err.message
         || 'An error occurred. Please try again.';
       setError(errorMsg);
