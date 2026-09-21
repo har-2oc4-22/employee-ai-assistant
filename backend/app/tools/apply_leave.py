@@ -3,15 +3,13 @@ tools/apply_leave.py
 ---------------------
 Tool 3: apply_leave
 
-The agent calls this tool to submit a leave request on behalf of an employee.
+Yeh tool tab call hota hai jab user employee portal se chhutti (leave) apply karta hai.
 
-CRITICAL DESIGN RULE:
-  The LLM cannot directly modify data. All validation and mutation happens
-  in employee_service.py (Python code). The LLM only decides WHEN to call
-  this tool — never HOW the data changes.
-
-  This is the safest architecture: the LLM is the decision-maker,
-  Python is the executor.
+SECURITY & ARCHITECTURE RULE (Hinglish me samjhein):
+  - LLM seedhe database ya JSON file ko change nahi kar sakta.
+  - LLM sirf 'Decision Maker' hai — wo decide karta hai ki user ke bolne par kab tool chalana hai.
+  - Asli checking (Dates valid hain ya nahi, balance bacha hai ya nahi, balance deduct karna)
+    sab Python code (employee_service.py) me safely execute hota hai.
 """
 
 import json
@@ -32,33 +30,31 @@ def apply_leave(
     reason: str,
 ) -> str:
     """
-    Submit a leave request for a TechCorp employee.
+    Submit a leave request for an employee.
 
-    This tool:
-    1. Validates the employee ID.
-    2. Validates the date range.
-    3. Calculates the number of working days requested.
-    4. Checks whether the employee has enough leave balance.
-    5. If valid, submits the request and deducts the balance.
-
-    IMPORTANT: Always call get_employee_info BEFORE calling this tool
-    to verify the employee exists and check their current leave balance.
+    Yeh tool kya karta hai:
+    1. Employee ID check karta hai ki employee exist karta hai ya nahi.
+    2. Start date aur end date ka range check karta hai (end date pehle nahi honi chahiye).
+    3. Working days count karta hai.
+    4. Check karta hai ki employee ke paas utna leave balance available hai ya nahi.
+    5. Agar balance hai, toh request submit karke balance deduct karta hai.
 
     Args:
-        employee_id: Employee ID, e.g. "EMP001"
-        start_date:  Leave start date in YYYY-MM-DD format, e.g. "2026-09-20"
-        end_date:    Leave end date in YYYY-MM-DD format, e.g. "2026-09-22"
-        reason:      Reason for the leave request
+        employee_id: Employee ID, jaise "EMP001"
+        start_date:  Chhutti shuru hone ki date (YYYY-MM-DD), jaise "2026-10-06"
+        end_date:    Chhutti khatam hone ki date (YYYY-MM-DD), jaise "2026-10-07"
+        reason:      Leave lene ki wajah (reason)
 
     Returns:
-        JSON string with the result: success (with confirmation) or error (with reason).
+        JSON string: success confirmation ke sath, ya error message kyu reject hua uske reason ke sath.
     """
     logger.info(
-        "Tool: apply_leave | emp=%s, %s to %s, reason='%s'",
+        "apply_leave tool call hua | emp=%s, %s se %s tak, reason='%s'",
         employee_id, start_date, end_date, reason,
     )
 
     try:
+        # Business logic function ko call karte hain jo database update karta hai
         result = _apply_leave(
             employee_id=employee_id,
             start_date=start_date,
@@ -68,13 +64,13 @@ def apply_leave(
 
         output = result.model_dump()
         logger.info(
-            "Tool: apply_leave result → status=%s, msg='%s'",
+            "apply_leave ka result aaya → status=%s, msg='%s'",
             result.status, result.message,
         )
         return json.dumps(output)
 
     except Exception as e:
-        logger.error("Error in apply_leave tool: %s", e, exc_info=True)
+        logger.error("apply_leave tool me exception aaya: %s", e, exc_info=True)
         return json.dumps({
             "status": "error",
             "message": "An unexpected error occurred while applying leave. Please try again.",

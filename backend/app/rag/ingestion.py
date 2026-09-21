@@ -1,19 +1,18 @@
 """
 rag/ingestion.py
 -----------------
-Document ingestion pipeline.
+Document ingestion pipeline (RAG data preparation).
 
-Flow:
-  Documents (pdf/md/txt)
-    → Document Loader       (LangChain loaders)
-    → Text Extraction
-    → Chunking              (RecursiveCharacterTextSplitter)
-    → Gemini Embeddings
-    → ChromaDB              (persistent storage)
+DATA PIPELINE FLOW (Hinglish me samjhein):
+  Documents (PDF / Markdown / Text)
+    → Document Loader       (Files ko padhkar text nikalna)
+    → Text Splitting        (800 characters ke chunks banana with 150 overlap)
+    → Gemini Embeddings     (Har chunk ka vector number representation banana)
+    → ChromaDB              (Persistent disk storage me save karna)
 
-This module is used by:
-  - scripts/ingest_documents.py  (CLI)
-  - api/routes/ingestion.py      (POST /ingest endpoint)
+Yeh module do jagah use hota hai:
+  1. scripts/ingest_documents.py (Terminal CLI se run karne par)
+  2. api/routes/ingestion.py     (POST /ingest API endpoint par)
 """
 
 import logging
@@ -36,33 +35,27 @@ logger = logging.getLogger(__name__)
 
 def load_single_document(file_path: str) -> List[Document]:
     """
-    Load a single document using the appropriate LangChain loader.
+    Ek single document file ko padhta hai aur uski metadata enrich karta hai.
 
-    WHY different loaders?
-    - PDF files have page structure — PyPDFLoader preserves page numbers.
-    - Markdown files have headings — UnstructuredMarkdownLoader handles them.
-    - Plain text files are loaded with TextLoader.
-    
-    Returns a list of Document objects (one per page for PDF, one for MD/TXT).
+    ALAG ALAG LOADERS KYU?
+    - PDF files me multiple pages hote hain, isliye PyPDFLoader page number track karta hai.
+    - Markdown aur TXT files plain text hoti hain, jinhe TextLoader clean format me read karta hai.
     """
     ext = Path(file_path).suffix.lower()
     filename = Path(file_path).name
 
     try:
         if ext == ".pdf":
+            # PDF file load karke page-by-page metadata add karte hain
             loader = PyPDFLoader(file_path)
             docs = loader.load()
-            # Enrich metadata for every page
             for i, doc in enumerate(docs):
                 doc.metadata["source"] = filename
                 doc.metadata["document_type"] = "pdf"
-                # page is already set by PyPDFLoader (0-indexed), convert to 1-indexed
                 doc.metadata["page"] = doc.metadata.get("page", i) + 1
 
         elif ext == ".md":
-            # Use TextLoader for markdown — simpler than UnstructuredMarkdownLoader
-            # Our policy .md files are plain text with standard markdown formatting.
-            # TextLoader reads the raw text which the splitter then chunks cleanly.
+            # Markdown file load kar rahe hain
             loader = TextLoader(file_path, encoding="utf-8")
             docs = loader.load()
             for doc in docs:
@@ -71,6 +64,7 @@ def load_single_document(file_path: str) -> List[Document]:
                 doc.metadata.setdefault("page", 1)
 
         elif ext == ".txt":
+            # Normal text file load kar rahe hain
             loader = TextLoader(file_path, encoding="utf-8")
             docs = loader.load()
             for doc in docs:
@@ -79,70 +73,66 @@ def load_single_document(file_path: str) -> List[Document]:
                 doc.metadata.setdefault("page", 1)
 
         else:
-            logger.warning("Unsupported file type '%s', skipping.", ext)
+            logger.warning("Unsupported file type '%s', isko skip kar rahe hain.", ext)
             return []
 
-        logger.info("Loaded '%s' -> %d page(s)", filename, len(docs))
+        logger.info("File load hui '%s' -> %d page(s)", filename, len(docs))
         return docs
 
     except Exception as e:
-        logger.error("Failed to load '%s': %s", file_path, e)
+        logger.error("File '%s' load karne me error aaya: %s", file_path, e)
         return []
 
 
 def load_all_documents(documents_dir: str) -> List[Document]:
     """
-    Walk the documents directory and load every supported file.
-    Returns a flat list of LangChain Document objects.
+    Documents folder ke andar jitne bhi supported files hain (.pdf, .txt, .md),
+    un sabko ek sath load karke ek flat list return karta hai.
     """
     supported_extensions = {".pdf", ".txt", ".md"}
     all_docs: List[Document] = []
 
     if not os.path.exists(documents_dir):
-        raise FileNotFoundError(f"Documents directory not found: {documents_dir}")
+        raise FileNotFoundError(f"Documents directory nahi mila: {documents_dir}")
 
     files = list(Path(documents_dir).glob("*"))
     files = [f for f in files if f.is_file() and f.suffix.lower() in supported_extensions]
 
     if not files:
-        logger.warning("No supported documents found in '%s'.", documents_dir)
+        logger.warning("Folder '%s' me koi supported document nahi mila.", documents_dir)
         return []
 
     for file_path in files:
         docs = load_single_document(str(file_path))
         all_docs.extend(docs)
 
-    logger.info("Loaded %d total pages from %d files.", len(all_docs), len(files))
+    logger.info("Total %d files me se %d pages load hue.", len(files), len(all_docs))
     return all_docs
 
 
 def split_documents(documents: List[Document]) -> List[Document]:
     """
-    Split documents into smaller chunks suitable for embedding.
+    Documents ko chote chunks me divide karta hai taaki LLM context window me fit ho sakein.
 
-    WHY RecursiveCharacterTextSplitter?
-    - It tries to split at natural boundaries: paragraphs → sentences → words.
-    - This preserves semantic meaning better than a simple character split.
-
-    WHY chunk_size=800, chunk_overlap=150?
-    - 800 chars ≈ 150–180 tokens: fits comfortably in the model's context
-      while large enough to contain a complete policy paragraph.
-    - 150 char overlap ensures that ideas at chunk boundaries are not lost
-      (e.g., a sentence that starts near the end of one chunk continues into the next).
-    - These are starting values. In production, experiment with different sizes
-      and measure retrieval quality using a test set of questions.
+    RECURSIVE CHARACTER TEXT SPLITTER KYU?
+    - Yeh pehle paragraph (\n\n), fir sentence (\n, .), fir words ke basis par split karta hai.
+    - Isse text ka context aur meaning barkarar rehta hai.
+    
+    CHUNK SIZE = 800, CHUNK OVERLAP = 150 KYU?
+    - 800 characters (~160 tokens) me policy ka pura clause ache se cover ho jata hai.
+    - 150 characters overlap isliye rakhte hain taaki do chunks ke border par sentences cut na ho jayein.
     """
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=settings.CHUNK_SIZE,
         chunk_overlap=settings.CHUNK_OVERLAP,
-        # Separators tried in order: paragraph → sentence → word → char
+        # Split karne ka priority order
         separators=["\n\n", "\n", ". ", " ", ""],
         length_function=len,
     )
 
     chunks = splitter.split_documents(documents)
     logger.info(
-        "Split %d pages into %d chunks (size=%d, overlap=%d).",
+        "%d pages ko %d chunks me split kiya (size=%d, overlap=%d).",
         len(documents),
         len(chunks),
         settings.CHUNK_SIZE,
@@ -156,30 +146,25 @@ def ingest_documents(
     force_reingest: bool = False,
 ) -> dict:
     """
-    Main ingestion function.
-    
-    1. Load documents from disk.
-    2. Split into chunks.
-    3. Embed and store in ChromaDB.
-
-    force_reingest=True clears the existing collection first.
-    Returns a summary dict with stats.
+    Complete ingestion pipeline execute karne ka main function:
+    1. Disk se documents load karo
+    2. Chunks me split karo
+    3. Gemini embeddings banakar ChromaDB me persist karo
     """
     from app.rag.vector_store import clear_collection
 
     documents_dir = documents_dir or settings.DOCUMENTS_DIR
 
-    # Optionally clear existing data
+    # Agar user ne force_reingest bola hai toh purana ChromaDB data delete karo
     if force_reingest:
-        logger.info("Force re-ingest requested — clearing existing collection.")
+        logger.info("Force re-ingest manga gaya hai — purana collection delete kar rahe hain.")
         clear_collection()
 
-    # Check if already ingested (skip unless forced)
+    # Agar pehle se data maujood hai aur force_reingest false hai toh skip karo
     existing_count = get_collection_count()
     if existing_count > 0 and not force_reingest:
         logger.info(
-            "ChromaDB already contains %d chunks. Skipping ingestion. "
-            "Pass force_reingest=True to re-embed.",
+            "ChromaDB me pehle se %d chunks hain. Ingestion skip kar rahe hain.",
             existing_count,
         )
         return {
@@ -188,21 +173,21 @@ def ingest_documents(
             "existing_chunks": existing_count,
         }
 
-    # Load
-    logger.info("Loading documents from: %s", documents_dir)
+    # Step 1: Documents Load karo
+    logger.info("Documents load ho rahe hain from: %s", documents_dir)
     raw_docs = load_all_documents(documents_dir)
     if not raw_docs:
         return {"status": "error", "reason": "No documents found"}
 
-    # Split
+    # Step 2: Chunks banao
     chunks = split_documents(raw_docs)
 
-    # Store
-    logger.info("Storing %d chunks in ChromaDB...", len(chunks))
+    # Step 3: Embeddings generate karke ChromaDB me store karo
+    logger.info("%d chunks ko ChromaDB me store kar rahe hain...", len(chunks))
     add_documents_to_store(chunks)
 
     final_count = get_collection_count()
-    logger.info("Ingestion complete. Total chunks in DB: %d", final_count)
+    logger.info("Ingestion complete ho gaya! DB me total chunks: %d", final_count)
 
     return {
         "status": "success",

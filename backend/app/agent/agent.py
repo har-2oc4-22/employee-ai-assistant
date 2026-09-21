@@ -1,25 +1,21 @@
 """
 agent/agent.py
 ---------------
-The main LangChain agent.
+The main LangChain agent loop (Multi-Tool Reasoning Engine).
 
-HOW THE AGENT WORKS:
-  1. We create a Gemini chat model with our three tools bound to it.
-     (bind_tools tells Gemini about the tool signatures via function calling.)
-  
-  2. The agent runs in a ReAct-style loop:
-       - LLM decides: answer directly OR call a tool.
-       - If a tool is called, we execute it and feed the result back to the LLM.
-       - Loop repeats until the LLM produces a final answer (no more tool calls).
-  
-  3. The conversation history is passed on every call so the LLM has context.
-  
-  4. We track which tools were called and which sources were cited.
-
-WHY NOT A PRE-BUILT LangChain AGENT EXECUTOR?
-  The newer LangChain approach (create_react_agent, etc.) uses LangGraph under the hood.
-  We implement the loop manually here so it's easy to understand and debug —
-  perfect for a fresher to explain in an interview.
+KAISE KAAM KARTA HAI YEH AGENT (Architecture in Hinglish):
+  1. Pehle Gemini model banate hain aur usme hamare 3 tools attach (bind) karte hain:
+     - search_company_documents (ChromaDB RAG)
+     - get_employee_info (Employee database lookup)
+     - apply_leave (Leave validation aur database update)
+     
+  2. Agent ek ReAct-style loop me chalta hai:
+     - LLM decide karta hai: User ka answer direct du ya kisi Tool ki zaroorat hai.
+     - Agar tool call chahiye, toh hum tool run karte hain aur result wapis LLM ko bhejte hain.
+     - Yeh process tab tak chalta hai jab tak LLM final answer generate na kar de.
+     
+  3. Har turn me conversation history pass hoti hai taaki bot ko purani baatein yaad rahein.
+  4. Akhir me response ke sath tools_used aur sources bhi return karte hain.
 """
 
 import json
@@ -38,58 +34,54 @@ from app.tools import ALL_TOOLS
 
 logger = logging.getLogger(__name__)
 
-# Maximum number of tool-calling iterations before we force a final answer
+# Maximum tool-calling iterations taaki infinite loop me na fase (safety cap)
 MAX_ITERATIONS = 6
 
 
 def _get_llm_with_tools() -> ChatGoogleGenerativeAI:
     """
-    Create the Gemini chat model with tools bound to it.
-    
-    bind_tools() sends the tool schemas to Gemini so it knows:
-    - What tools exist
-    - What arguments each tool expects
-    - When to call them (based on the docstrings we wrote)
+    Gemini model initialize karte hain aur tools ko function calling ke liye bind karte hain.
+    temperature=0 rakha hai taaki answers deterministic aur reliable rahein (business logic ke liye zaruri).
     """
     llm = ChatGoogleGenerativeAI(
         model=settings.GEMINI_CHAT_MODEL,
         google_api_key=settings.GEMINI_API_KEY,
-        temperature=0,   # 0 = deterministic, no creativity — important for business logic
+        temperature=0,   # 0 = No hallucination / factual business response
     )
+    # bind_tools() tool ka naam, arguments aur description Gemini ko bhejta hai
     return llm.bind_tools(ALL_TOOLS)
 
 
 def _execute_tool(tool_call: dict) -> Tuple[str, str]:
     """
-    Execute a single tool call returned by the LLM.
-
-    Returns:
-        (tool_name, result_string)
+    LLM ne jis tool ko bulaya hai, usko execute karte hain.
+    Returns: (tool_name, tool_result_as_string)
     """
     tool_name = tool_call["name"]
     tool_args = tool_call["args"]
 
-    # Find the matching tool object
+    # Tool list me se matching tool dhoondte hain
     tool_fn = next((t for t in ALL_TOOLS if t.name == tool_name), None)
 
     if not tool_fn:
-        logger.error("Agent requested unknown tool: '%s'", tool_name)
+        logger.error("Agent ne anjaan tool manga: '%s'", tool_name)
         return tool_name, json.dumps({"error": f"Unknown tool: {tool_name}"})
 
-    logger.info("Executing tool: %s | args: %s", tool_name, tool_args)
+    logger.info("Tool execute ho raha hai: %s | arguments: %s", tool_name, tool_args)
 
     try:
+        # Tool invoke karke result lete hain
         result = tool_fn.invoke(tool_args)
         return tool_name, result
     except Exception as e:
-        logger.error("Tool '%s' raised an exception: %s", tool_name, e, exc_info=True)
+        logger.error("Tool '%s' execute karne me error aaya: %s", tool_name, e, exc_info=True)
         return tool_name, json.dumps({"error": str(e)})
 
 
 def _extract_sources_from_tool_results(tool_results: List[Dict]) -> List[dict]:
     """
-    Parse tool results to extract source citations.
-    Only search_company_documents returns sources.
+    Tool ke results me se cited source documents nikalte hain.
+    Sirf search_company_documents tool hi documents ke sources return karta hai.
     """
     sources = []
     seen = set()
@@ -116,34 +108,34 @@ def run_agent(
     conversation_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Run the agent for a single user message.
+    Single user message ke liye agent ko run karta hai.
 
     Args:
-        employee_id:     The employee's ID (used in the system prompt)
-        user_message:    The user's input
-        conversation_id: If provided, continues an existing conversation
+        employee_id:     User ka employee ID (jaise 'EMP001')
+        user_message:    User ka natural language question
+        conversation_id: Previous chat continue karne ke liye unique session ID
 
     Returns:
-        A dict with: answer, sources, tools_used, conversation_id
+        Dictionary: { answer, sources, tools_used, conversation_id }
     """
-    # Create or reuse conversation ID
+    # Agar pehle se conversation ID nahi hai toh naya create karo
     if not conversation_id:
         conversation_id = str(uuid.uuid4())
-        logger.info("New conversation started: '%s'", conversation_id)
+        logger.info("Nayi conversation shuru hui: '%s'", conversation_id)
     else:
-        logger.info("Continuing conversation: '%s'", conversation_id)
+        logger.info("Purani conversation continue ho rahi hai: '%s'", conversation_id)
 
-    # Load history
+    # In-memory history se pichle messages load karte hain
     history: List[BaseMessage] = get_history(conversation_id)
 
-    # Build the system prompt with today's date and employee context
+    # Dynamic system prompt banate hain (aaj ki date aur employee ID ke sath)
     system_prompt = build_agent_system_prompt(
         employee_id=employee_id,
         today_date=date.today().isoformat(),
     )
 
-    # Construct the messages list:
-    # [SystemMessage, ...history..., HumanMessage(current)]
+    # LLM ke liye message sequence tayar karte hain:
+    # [SystemMessage, ...purane messages..., HumanMessage(aaj ka)]
     messages: List[BaseMessage] = [
         SystemMessage(content=system_prompt),
         *history,
@@ -156,29 +148,25 @@ def run_agent(
     tool_results: List[Dict] = []
     iterations = 0
 
-    # ── Agent loop ──────────────────────────────────────────────────────────
-    # This loop continues until:
-    #   (a) The LLM produces a final text answer (no tool_calls), OR
-    #   (b) We hit MAX_ITERATIONS (safety limit)
-
+    # ── ReAct Agent Loop ────────────────────────────────────────────────────
+    # Yeh loop tab tak chalega jab tak LLM direct answer na de de ya MAX_ITERATIONS na poori ho jayein
     while iterations < MAX_ITERATIONS:
         iterations += 1
-        logger.debug("Agent iteration %d", iterations)
+        logger.debug("Agent loop iteration: %d", iterations)
 
-        # Send messages to Gemini
+        # Gemini ko message bhejte hain
         response: AIMessage = llm_with_tools.invoke(messages)
         messages.append(response)
 
-        # Check if Gemini wants to call tools
+        # Agar Gemini ne koi tool call nahi kiya, matlab final answer mil gaya!
         if not response.tool_calls:
-            # No tool calls → this is the final answer
             logger.info(
-                "Agent finished after %d iteration(s). Tools used: %s",
+                "Agent ne %d iterations me answer finalize kiya. Tools used: %s",
                 iterations, tools_used,
             )
             break
 
-        # Process each tool call
+        # Agar Gemini ne tools call kiye hain toh unhe baari baari execute karte hain
         for tool_call in response.tool_calls:
             tool_name, tool_result = _execute_tool(tool_call)
 
@@ -190,7 +178,7 @@ def run_agent(
                 "result": tool_result,
             })
 
-            # Add the tool result back to the message list
+            # Tool ka result ToolMessage ke roop me wapis LLM history me jodte hain
             messages.append(
                 ToolMessage(
                     tool_call_id=tool_call["id"],
@@ -199,13 +187,13 @@ def run_agent(
             )
 
     else:
-        # Safety: if we hit MAX_ITERATIONS, ask LLM for a final answer anyway
-        logger.warning("Max iterations reached. Forcing final answer.")
+        # Safety fallback: Agar 6 iterations cross ho gaye toh zabardasti final response generate karate hain
+        logger.warning("Max iterations cross ho gaye. Forcing final answer.")
         final_response = llm_with_tools.invoke(messages)
         messages.append(final_response)
         response = final_response
 
-    # Extract the final answer text
+    # Final response ka text extract karte hain
     if isinstance(response.content, str):
         answer = response.content
     elif isinstance(response.content, list):
@@ -223,16 +211,15 @@ def run_agent(
     else:
         answer = str(response.content)
 
-    # Extract sources from RAG tool results
+    # RAG tool results me se cited source documents extract karte hain
     sources = _extract_sources_from_tool_results(tool_results)
 
-    # Save updated conversation history (without the system message — it's rebuilt each time)
-    # We save only non-system messages to keep history clean
+    # Chat history save karte hain (SystemMessage ko chhodkar, taaki history clean rahe)
     non_system_messages = [m for m in messages if not isinstance(m, SystemMessage)]
     save_history(conversation_id, non_system_messages)
 
     logger.info(
-        "Response ready | conv=%s | tools=%s | sources=%d",
+        "Final response tayar hai | conv=%s | tools=%s | sources=%d",
         conversation_id, tools_used, len(sources),
     )
 

@@ -3,15 +3,15 @@ tools/knowledge_search.py
 --------------------------
 Tool 1: search_company_documents
 
-The agent calls this tool whenever the user asks about company policies,
-procedures, benefits, or any other company-specific information.
+Yeh tool tab call hota hai jab user company ki policies, benefits,
+WFH guidelines ya leave rules ke baare me sawal puchta hai.
 
-HOW IT WORKS:
-  1. Receive a natural language query from the agent.
-  2. Embed the query using Gemini embeddings (same model used for documents).
-  3. Search ChromaDB for the most similar chunks.
-  4. Filter chunks below the relevance threshold (hallucination guard).
-  5. Return the chunks as a JSON string (the agent reads this to answer).
+FLOW (Hinglish me):
+  1. Agent se natural language query milti hai (jaise "work from home policy")
+  2. Gemini embedding model se query ka vector banta hai
+  3. ChromaDB vector database me similarity search hoti hai
+  4. 0.30 threshold se neeche wale irrelevant chunks filter out ho jaate hain
+  5. Chunks ko JSON format me pack karke LLM ko diya jaata hai
 """
 
 import json
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 @tool
 def search_company_documents(query: str) -> str:
     """
-    Search TechCorp's company documents for information about policies,
+    Search company policy documents for information about policies,
     benefits, procedures, or any other company-specific topic.
     
     Use this tool for ANY question about:
@@ -45,11 +45,13 @@ def search_company_documents(query: str) -> str:
     Returns:
         JSON string with retrieved document chunks and source citations.
     """
-    logger.info("Tool: search_company_documents | Query: '%s'", query)
+    logger.info("Tool execute ho raha hai: search_company_documents | Query: '%s'", query)
 
     try:
+        # ChromaDB se query ke relevant chunks mangwate hain (threshold filtered)
         chunks = retrieve_relevant_chunks(query=query, k=settings.RETRIEVAL_TOP_K)
 
+        # Agar koi bhi chunk threshold pass nahi kar paya
         if not chunks:
             result = {
                 "found": False,
@@ -61,10 +63,10 @@ def search_company_documents(query: str) -> str:
                 "results": [],
                 "sources": [],
             }
-            logger.info("No relevant chunks found for query: '%s'", query)
+            logger.info("Query ke liye koi relevant chunk nahi mila: '%s'", query)
             return json.dumps(result)
 
-        # Format results for the agent
+        # Agent ke padhne ke liye clean JSON format banate hain
         results = []
         for chunk in chunks:
             results.append({
@@ -74,6 +76,7 @@ def search_company_documents(query: str) -> str:
                 "document_type": chunk.metadata.get("document_type"),
             })
 
+        # Sources nikalte hain (citations frontend par dikhane ke liye)
         sources = extract_unique_sources(chunks)
 
         result = {
@@ -84,14 +87,14 @@ def search_company_documents(query: str) -> str:
         }
 
         logger.info(
-            "Tool: search_company_documents returned %d chunks from sources: %s",
+            "search_company_documents ne %d chunks return kiye sources se: %s",
             len(chunks),
             [s["source"] for s in sources],
         )
         return json.dumps(result)
 
     except Exception as e:
-        logger.error("Error in search_company_documents: %s", e, exc_info=True)
+        logger.error("search_company_documents me exception aaya: %s", e, exc_info=True)
         return json.dumps({
             "found": False,
             "error": "Failed to search company documents. Please try again.",

@@ -1,13 +1,14 @@
 """
 rag/retriever.py
 -----------------
-Retrieval logic: given a query, find the most relevant document chunks.
+Retrieval logic: Given a query, find the most relevant document chunks.
+Yeh module user ke sawal ke hisaab se sabse relevant policy documents dhoondta hai.
 
-HOW HALLUCINATION PREVENTION WORKS:
-  After similarity search, each chunk has a relevance score (0–1).
-  If NO chunk scores above RETRIEVAL_SCORE_THRESHOLD, we return an empty list.
-  The calling code treats empty results as "not found" and tells the LLM so,
-  preventing it from inventing an answer from its training data.
+HALLUCINATION PREVENTION KAISE KAAM KARTA HAI (Hinglish me):
+  1. ChromaDB cosine similarity search karta hai aur har chunk ko relevance score (0 se 1) deta hai.
+  2. Agar koi bhi chunk RETRIEVAL_SCORE_THRESHOLD (0.30) se upar nahi score karta, toh empty list return hoti hai.
+  3. Jab empty list aati hai, LLM ko pata chal jata hai ki company policy me yeh information maujood nahi hai.
+  4. Isse LLM mann-ghadant (hallucinated) jawab nahi banata aur saaf bolta hai ki documents me answer nahi mila.
 """
 
 import logging
@@ -23,28 +24,24 @@ logger = logging.getLogger(__name__)
 
 def retrieve_relevant_chunks(query: str, k: int = None) -> List[Document]:
     """
-    Retrieve the top-k most relevant document chunks for a query.
+    User query ke liye top-k most relevant document chunks retrieve karta hai.
 
-    Steps:
-    1. Run similarity search in ChromaDB.
-    2. Filter out chunks below the relevance threshold.
-    3. Return the remaining chunks (with metadata intact).
-
-    If no chunks pass the threshold → returns empty list.
-    The caller should then NOT pass any context to the LLM
-    (which prevents hallucination).
+    Kaise kaam karta hai:
+    1. ChromaDB me similarity search chalata hai (query vector vs document vectors).
+    2. Threshold filter lagata hai (kam score wale irrelevant chunks ko hata deta hai).
+    3. Filtered documents return karta hai (with file name aur page metadata).
     """
     k = k or settings.RETRIEVAL_TOP_K
     threshold = settings.RETRIEVAL_SCORE_THRESHOLD
 
-    # Run search (returns [(Document, relevance_score), ...])
+    # ChromaDB se similarity search karate hain (returns [(Document, score), ...])
     results_with_scores = similarity_search_with_scores(query=query, k=k)
 
     if not results_with_scores:
-        logger.info("No results returned from ChromaDB for query: '%s'", query)
+        logger.info("ChromaDB se query '%s' ke liye koi result nahi mila", query)
         return []
 
-    # Log scores for transparency
+    # Har result ka similarity score log karte hain (debugging ke liye)
     for doc, score in results_with_scores:
         logger.debug(
             "  Score: %.3f | Source: %s",
@@ -52,16 +49,17 @@ def retrieve_relevant_chunks(query: str, k: int = None) -> List[Document]:
             doc.metadata.get("source", "unknown"),
         )
 
-    # Filter by threshold
+    # Threshold filtering: Sirf wahi chunks rakho jinka score >= threshold hai
     filtered = [
         (doc, score)
         for doc, score in results_with_scores
         if score >= threshold
     ]
 
+    # Agar sabhi chunks threshold se neeche hain, matlab documents me answer nahi hai
     if not filtered:
         logger.info(
-            "All %d retrieved chunks scored below threshold %.2f for query: '%s'",
+            "Sare %d chunks threshold %.2f se neeche score kare query ke liye: '%s'",
             len(results_with_scores),
             threshold,
             query,
@@ -69,28 +67,25 @@ def retrieve_relevant_chunks(query: str, k: int = None) -> List[Document]:
         return []
 
     logger.info(
-        "Retrieved %d/%d chunks above threshold %.2f for query: '%s'",
+        "Threshold %.2f ke upar %d/%d chunks select hue query ke liye: '%s'",
+        threshold,
         len(filtered),
         len(results_with_scores),
-        threshold,
         query,
     )
 
-    # Return just the documents (scores were only needed for filtering)
+    # Sirf document objects return karte hain
     return [doc for doc, _ in filtered]
 
 
 def format_retrieved_context(chunks: List[Document]) -> str:
     """
-    Format retrieved chunks into a single context string to inject into the prompt.
-    Each chunk is labelled with its source so the LLM can cite it.
-
-    Example output:
-      [Source: leave_policy.md | Page: 2]
-      Employees are entitled to 18 days of Earned Leave...
-
-      [Source: leave_policy.md | Page: 3]
-      Casual Leave cannot be carried forward...
+    Retrieved document chunks ko ek single clean text string me convert karta hai
+    taaki Gemini ke prompt me context ke roop me bheja ja sake.
+    
+    Har chunk ke upar source document ka naam aur page number likha rehta hai:
+    [Source: leave_policy.md | Page: 2]
+    ...content...
     """
     if not chunks:
         return ""
@@ -107,11 +102,8 @@ def format_retrieved_context(chunks: List[Document]) -> str:
 
 def extract_unique_sources(chunks: List[Document]) -> List[dict]:
     """
-    Extract deduplicated source references from retrieved chunks.
-    Used to populate the 'sources' field in the API response.
-
-    Returns a list like:
-      [{"source": "leave_policy.md", "page": 2, "document_type": "md"}, ...]
+    Retrieved chunks me se unique source references nikalta hai (duplicates remove karke).
+    Yeh frontend me '📄 Sources' pill tags display karne ke kaam aata hai.
     """
     seen = set()
     sources = []
@@ -121,7 +113,7 @@ def extract_unique_sources(chunks: List[Document]) -> List[dict]:
         page = chunk.metadata.get("page")
         doc_type = chunk.metadata.get("document_type")
 
-        # Use (source, page) as the unique key to avoid duplicates
+        # Duplicate sources avoid karne ke liye unique key banate hain
         key = (source, page)
         if key not in seen:
             seen.add(key)
