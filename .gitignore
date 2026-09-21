@@ -1,40 +1,74 @@
-# Python
+# ── Environment & Secrets ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+*.key
+*.pem
+
+# ── Python & Virtual Environments ───────────────────────────────────────────
 __pycache__/
 *.py[cod]
+*$py.class
 *.pyo
 *.pyd
-*.so
 .Python
 venv/
 env/
-.env
-*.egg-info/
-dist/
+ENV/
+.venv/
+backend/venv/
+
+# ── Build & Packaging ───────────────────────────────────────────────────────
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ── Testing & Code Quality ──────────────────────────────────────────────────
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+
+# ── Vector DB & Storage ─────────────────────────────────────────────────────
+backend/chroma_db/
+chroma_db/
 *.log
 
-# ChromaDB data (do not commit vector store)
-backend/chroma_db/
-
-# Node
+# ── Node / Frontend ─────────────────────────────────────────────────────────
 node_modules/
+frontend/node_modules/
 frontend/dist/
-frontend/.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# IDE
+# ── Editor & Operating System ───────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 .DS_Store
 Thumbs.db
-
-# Docker
-.dockerignore
-
-# Secrets
-*.key
-*.pem
