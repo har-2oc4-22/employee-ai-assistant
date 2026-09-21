@@ -1,15 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import Sidebar from './components/Sidebar';
 import ChatWindow from './components/ChatWindow';
-import EmployeeSelector from './components/EmployeeSelector';
 import { useChat } from './hooks/useChat';
-
-function SendIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-      <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
-    </svg>
-  );
-}
 
 export default function App() {
   const {
@@ -25,13 +17,34 @@ export default function App() {
   } = useChat();
 
   const [inputText, setInputText] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sessionCopied, setSessionCopied] = useState(false);
   const inputRef = useRef(null);
+
+  // Focus input on load
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  // Keyboard shortcut: Cmd/Ctrl + K for new chat
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        resetChat();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [resetChat]);
 
   const handleSend = async (overrideText) => {
     const text = (overrideText || inputText).trim();
     if (!text || isLoading) return;
     setInputText('');
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+    }
     await sendMessage(text);
     inputRef.current?.focus();
   };
@@ -51,75 +64,71 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#0B0F19] text-slate-100 relative overflow-hidden font-sans">
-      {/* Background ambient lighting */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="flex h-screen w-screen bg-[#212121] text-[#ececec] overflow-hidden font-sans select-text">
+      {/* ── ChatGPT Left Sidebar ────────────────────────────────────────── */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onNewChat={resetChat}
+        onSelectPrompt={(prompt) => handleSend(prompt)}
+        employeeId={employeeId}
+        onChangeEmployee={changeEmployee}
+      />
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <header className="glass-header px-4 py-3 flex-shrink-0 z-10">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          {/* Logo & Branding */}
+      {/* ── Main Chat Area ──────────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col h-full min-w-0 relative bg-[#212121]">
+        {/* ── Top Bar (ChatGPT Style) ──────────────────────────────────── */}
+        <header className="h-14 flex items-center justify-between px-4 border-b border-white/5 bg-[#212121]/90 backdrop-blur-sm flex-shrink-0 z-10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-600 to-blue-500
-                            flex items-center justify-center text-white text-lg shadow-lg shadow-indigo-500/20">
-              🤖
+            {/* Sidebar toggle button */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+              title="Toggle sidebar"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+
+            {/* Model / Workspace Selector Pill */}
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-xl hover:bg-white/5 transition-colors cursor-default">
+              <span className="text-base font-semibold text-white tracking-tight">
+                Employee Portal
+              </span>
+              <span className="text-xs text-slate-400 font-normal">
+                3.5 Flash
+              </span>
+              <span className="text-xs text-slate-500">⌵</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold text-white leading-tight tracking-tight">
-                  Employee AI Assistant
-                </h1>
-                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 rounded-full px-2 py-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 status-pulse" />
-                  Online
+          </div>
+
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-2">
+            {conversationId && (
+              <button
+                onClick={handleCopySession}
+                className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-white/5 border border-white/5 transition-colors font-mono"
+                title="Copy conversation session ID"
+              >
+                <span>{sessionCopied ? '✓' : '📋'}</span>
+                <span className="truncate max-w-[120px]">
+                  {sessionCopied ? 'Copied' : conversationId.slice(0, 8) + '...'}
                 </span>
-              </div>
-              <p className="text-[11px] text-slate-400 font-medium">Employee Portal</p>
-            </div>
-          </div>
+              </button>
+            )}
 
-          {/* Right Controls: Employee Switcher & Reset */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <EmployeeSelector
-              employeeId={employeeId}
-              onChange={changeEmployee}
-            />
             <button
-              id="reset-conversation-btn"
               onClick={resetChat}
-              title="Reset conversation and start new session"
-              className="text-xs font-medium text-slate-400 hover:text-rose-300
-                         bg-slate-900/80 hover:bg-rose-950/40 border border-slate-800 hover:border-rose-800/50
-                         rounded-xl px-3 py-2 transition-all flex items-center gap-1.5 shadow-sm"
+              className="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/5 border border-white/5 transition-colors"
+              title="Start a new chat session"
             >
-              <span>↺</span>
-              <span className="hidden sm:inline">New Chat</span>
+              New chat
             </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* ── Session ID Banner ────────────────────────────────────────────── */}
-      {conversationId && (
-        <div className="bg-slate-900/50 border-b border-slate-800/60 px-4 py-1 flex-shrink-0 z-10">
-          <div className="max-w-4xl mx-auto flex items-center justify-between text-[11px] text-slate-400">
-            <span className="font-mono truncate">
-              Session: <span className="text-indigo-300">{conversationId}</span>
-            </span>
-            <button
-              onClick={handleCopySession}
-              className="hover:text-indigo-300 transition-colors ml-2 flex-shrink-0"
-              title="Copy session ID"
-            >
-              {sessionCopied ? '✓ Copied' : '📋 Copy ID'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── Chat Window ──────────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-hidden max-w-4xl w-full mx-auto flex flex-col z-10">
+        {/* ── Chat Messages Flow ────────────────────────────────────────── */}
         <ChatWindow
           messages={messages}
           isLoading={isLoading}
@@ -127,57 +136,66 @@ export default function App() {
           onSelectPrompt={(prompt) => handleSend(prompt)}
         />
 
-        {/* ── Input Dock ───────────────────────────────────────────────── */}
-        <div className="flex-shrink-0 glass-dock px-4 py-3">
-          {/* Error banner */}
-          {error && (
-            <div className="max-w-3xl mx-auto mb-2 text-xs text-rose-300 bg-rose-950/50 border border-rose-800/60 rounded-xl px-3 py-2 flex items-center gap-2">
-              <span>⚠️</span>
-              <span>{error}</span>
-            </div>
-          )}
+        {/* ── Floating Bottom Input Dock (ChatGPT signature) ─────────────── */}
+        <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-gradient-to-t from-[#212121] via-[#212121] to-transparent">
+          <div className="max-w-3xl w-full mx-auto">
+            {/* Error banner */}
+            {error && (
+              <div className="mb-3 text-xs text-rose-300 bg-rose-950/40 border border-rose-800/40 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{error}</span>
+                </div>
+                <button
+                  onClick={() => resetChat()}
+                  className="underline hover:text-white text-xs ml-2"
+                >
+                  Start New Session
+                </button>
+              </div>
+            )}
 
-          <div className="max-w-3xl mx-auto">
-            <div className="relative flex items-end gap-2 bg-slate-900/90 border border-slate-800 rounded-2xl p-1.5 shadow-xl focus-within:border-indigo-500/50 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
+            {/* Input Pill Box */}
+            <div className="relative flex items-end gap-2 bg-[#2f2f2f] border border-white/10 rounded-[28px] px-4 py-3 shadow-xl focus-within:border-white/20 transition-colors">
               <textarea
                 id="chat-input"
                 ref={inputRef}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about company policies, check leave balance, or apply for leave…"
+                placeholder="Message Employee Portal..."
                 rows={1}
                 disabled={isLoading}
-                className="flex-1 bg-transparent resize-none px-3.5 py-2
-                           text-sm text-slate-100 placeholder-slate-500
-                           focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-colors leading-relaxed"
-                style={{ maxHeight: '120px' }}
+                className="flex-1 bg-transparent resize-none text-[15px] text-slate-100 placeholder-slate-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed leading-relaxed"
+                style={{ maxHeight: '160px' }}
                 onInput={(e) => {
                   e.target.style.height = 'auto';
-                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                  e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
                 }}
               />
+
+              {/* Up-arrow Send Button (ChatGPT style) */}
               <button
                 id="send-btn"
                 onClick={() => handleSend()}
                 disabled={!inputText.trim() || isLoading}
-                className="flex-shrink-0 w-9 h-9 rounded-xl
-                           bg-gradient-to-r from-indigo-600 to-blue-600 text-white
-                           flex items-center justify-center
-                           hover:from-indigo-500 hover:to-blue-500 active:scale-95
-                           disabled:opacity-30 disabled:cursor-not-allowed
-                           transition-all shadow-md shadow-indigo-600/20"
-                title="Send message"
+                className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                  inputText.trim() && !isLoading
+                    ? 'bg-white text-black hover:bg-slate-200 active:scale-95 shadow-md'
+                    : 'bg-[#424242] text-slate-500 cursor-not-allowed opacity-60'
+                }`}
+                title="Send prompt"
               >
-                <SendIcon />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 font-bold">
+                  <path fillRule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06l-6.22-6.22V21a.75.75 0 01-1.5 0V4.81l-6.22 6.22a.75.75 0 11-1.06-1.06l7.5-7.5z" clipRule="evenodd" />
+                </svg>
               </button>
             </div>
 
-            <div className="flex items-center justify-between px-1.5 mt-2 text-[11px] text-slate-500">
-              <span>Press <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">Enter</kbd> to send · <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">Shift+Enter</kbd> for new line</span>
-              <span className="hidden sm:inline">RAG ChromaDB · Gemini 3.6 Flash</span>
-            </div>
+            {/* Disclaimer subtitle */}
+            <p className="text-[11px] text-slate-500 text-center mt-2 font-normal">
+              Employee Portal can make mistakes. Verify critical leave and HR policy decisions with HR.
+            </p>
           </div>
         </div>
       </div>

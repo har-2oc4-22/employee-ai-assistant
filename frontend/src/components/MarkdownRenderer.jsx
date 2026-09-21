@@ -13,7 +13,7 @@ function parseInline(text) {
       return (
         <code
           key={index}
-          className="px-1.5 py-0.5 mx-0.5 text-xs font-mono bg-indigo-950/80 text-indigo-300 border border-indigo-800/50 rounded-md"
+          className="px-1.5 py-0.5 mx-0.5 text-xs font-mono bg-white/10 text-white rounded"
         >
           {part.slice(1, -1)}
         </code>
@@ -36,7 +36,7 @@ function parseInline(text) {
 }
 
 /**
- * Lightweight and robust markdown renderer for chat assistant responses.
+ * ChatGPT-style typography markdown renderer.
  */
 export default function MarkdownRenderer({ content }) {
   if (!content) return null;
@@ -48,10 +48,10 @@ export default function MarkdownRenderer({ content }) {
   const flushList = () => {
     if (currentList.length > 0) {
       elements.push(
-        <ul key={`list-${elements.length}`} className="my-2.5 space-y-1.5 text-slate-300">
+        <ul key={`list-${elements.length}`} className="my-2 space-y-1 text-slate-200">
           {currentList.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-sm leading-relaxed">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 flex-shrink-0" />
+            <li key={idx} className="flex items-start gap-2 text-[15px] leading-relaxed">
+              <span className="text-slate-400 select-none">•</span>
               <span>{parseInline(item)}</span>
             </li>
           ))}
@@ -68,7 +68,7 @@ export default function MarkdownRenderer({ content }) {
     if (trimmed === '---' || trimmed === '***') {
       flushList();
       elements.push(
-        <hr key={`hr-${index}`} className="my-3 border-t border-slate-700/60" />
+        <hr key={`hr-${index}`} className="my-3 border-t border-white/10" />
       );
       return;
     }
@@ -79,9 +79,8 @@ export default function MarkdownRenderer({ content }) {
       elements.push(
         <h3
           key={`h3-${index}`}
-          className="text-sm font-bold text-indigo-300 uppercase tracking-wide mt-3.5 mb-1.5 flex items-center gap-1.5"
+          className="text-sm font-semibold text-white uppercase tracking-wider mt-4 mb-1.5"
         >
-          <span className="w-1.5 h-3.5 bg-indigo-500 rounded-sm inline-block" />
           {parseInline(trimmed.slice(4))}
         </h3>
       );
@@ -94,7 +93,7 @@ export default function MarkdownRenderer({ content }) {
       elements.push(
         <h2
           key={`h2-${index}`}
-          className="text-base font-bold text-white mt-4 mb-2 border-b border-slate-700/50 pb-1"
+          className="text-base font-semibold text-white mt-4 mb-2"
         >
           {parseInline(trimmed.slice(3))}
         </h2>
@@ -106,7 +105,7 @@ export default function MarkdownRenderer({ content }) {
     if (trimmed.startsWith('# ')) {
       flushList();
       elements.push(
-        <h1 key={`h1-${index}`} className="text-lg font-extrabold text-white mt-4 mb-2">
+        <h1 key={`h1-${index}`} className="text-lg font-bold text-white mt-4 mb-2">
           {parseInline(trimmed.slice(2))}
         </h1>
       );
@@ -124,9 +123,9 @@ export default function MarkdownRenderer({ content }) {
     if (numMatch) {
       flushList();
       elements.push(
-        <div key={`num-${index}`} className="flex items-start gap-2.5 my-1.5 text-sm leading-relaxed text-slate-300">
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-indigo-900/60 text-indigo-300 border border-indigo-700/40 flex-shrink-0 mt-0.5">
-            {numMatch[1]}
+        <div key={`num-${index}`} className="flex items-start gap-2 my-1 text-[15px] leading-relaxed text-slate-200">
+          <span className="text-sm font-medium text-slate-400 min-w-[18px]">
+            {numMatch[1]}.
           </span>
           <div>{parseInline(numMatch[2])}</div>
         </div>
@@ -137,10 +136,10 @@ export default function MarkdownRenderer({ content }) {
     // Normal text or empty line
     flushList();
     if (trimmed === '') {
-      elements.push(<div key={`empty-${index}`} className="h-2" />);
+      elements.push(<div key={`empty-${index}`} className="h-1.5" />);
     } else {
       elements.push(
-        <p key={`p-${index}`} className="text-sm leading-relaxed text-slate-300 my-1">
+        <p key={`p-${index}`} className="text-[15px] leading-relaxed text-slate-200 my-1">
           {parseInline(trimmed)}
         </p>
       );
