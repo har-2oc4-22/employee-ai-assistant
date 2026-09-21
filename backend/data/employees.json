@@ -1,0 +1,47 @@
+{
+  "EMP001": {
+    "employee_id": "EMP001",
+    "name": "Rahul Sharma",
+    "department": "Engineering",
+    "position": "Software Engineer",
+    "email": "rahul.sharma@techcorp.com",
+    "leave_balance": 12,
+    "manager": "EMP004"
+  },
+  "EMP002": {
+    "employee_id": "EMP002",
+    "name": "Priya Patel",
+    "department": "Human Resources",
+    "position": "HR Manager",
+    "email": "priya.patel@techcorp.com",
+    "leave_balance": 8,
+    "manager": "EMP005"
+  },
+  "EMP003": {
+    "employee_id": "EMP003",
+    "name": "Arjun Mehta",
+    "department": "Finance",
+    "position": "Financial Analyst",
+    "email": "arjun.mehta@techcorp.com",
+    "leave_balance": 1,
+    "manager": "EMP005"
+  },
+  "EMP004": {
+    "employee_id": "EMP004",
+    "name": "Sneha Gupta",
+    "department": "Engineering",
+    "position": "Engineering Manager",
+    "email": "sneha.gupta@techcorp.com",
+    "leave_balance": 10,
+    "manager": null
+  },
+  "EMP005": {
+    "employee_id": "EMP005",
+    "name": "Vikram Nair",
+    "department": "Operations",
+    "position": "COO",
+    "email": "vikram.nair@techcorp.com",
+    "leave_balance": 20,
+    "manager": null
+  }
+}

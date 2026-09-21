@@ -1,0 +1,79 @@
+[
+  {
+    "request_id": "1be32ee1-0a43-4ba7-8023-4d618dbb1cc6",
+    "employee_id": "EMP003",
+    "employee_name": "Arjun Mehta",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-07",
+    "days": 2,
+    "reason": "Personal work",
+    "status": "approved",
+    "submitted_at": "2026-09-21T04:00:10.597649"
+  },
+  {
+    "request_id": "a49c3a30-3f63-4231-8928-6979a2810484",
+    "employee_id": "EMP003",
+    "employee_name": "Arjun Mehta",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-07",
+    "days": 2,
+    "reason": "Personal work",
+    "status": "approved",
+    "submitted_at": "2026-09-21T04:00:46.145098+00:00"
+  },
+  {
+    "request_id": "ed985f48-34d2-4eb1-b934-9677ae3ea1a4",
+    "employee_id": "EMP003",
+    "employee_name": "Arjun Mehta",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-07",
+    "days": 2,
+    "reason": "Personal work",
+    "status": "approved",
+    "submitted_at": "2026-09-21T04:02:50.135226+00:00"
+  },
+  {
+    "request_id": "603baa4c-1c42-4f36-bbb2-4d19d6ee0566",
+    "employee_id": "EMP003",
+    "employee_name": "Arjun Mehta",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-07",
+    "days": 2,
+    "reason": "Personal work",
+    "status": "approved",
+    "submitted_at": "2026-09-21T04:03:09.803038+00:00"
+  },
+  {
+    "request_id": "b97f090d-8674-4b58-8101-daf6ad233afd",
+    "employee_id": "EMP003",
+    "employee_name": "Arjun Mehta",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-07",
+    "days": 2,
+    "reason": "Personal work",
+    "status": "approved",
+    "submitted_at": "2026-09-21T04:14:24.624923+00:00"
+  },
+  {
+    "request_id": "1e72780f-0681-44e8-a071-33dcc939d372",
+    "employee_id": "EMP003",
+    "employee_name": "Arjun Mehta",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-07",
+    "days": 2,
+    "reason": "Personal work",
+    "status": "approved",
+    "submitted_at": "2026-09-21T04:48:54.105054+00:00"
+  },
+  {
+    "request_id": "61e42152-bd0b-4e3d-adb3-2b5f625f72b6",
+    "employee_id": "EMP003",
+    "employee_name": "Arjun Mehta",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-07",
+    "days": 2,
+    "reason": "Personal work",
+    "status": "approved",
+    "submitted_at": "2026-09-21T05:17:44.703011+00:00"
+  }
+]

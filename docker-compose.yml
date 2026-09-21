@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_CHAT_MODEL=${GEMINI_CHAT_MODEL:-gemini-3.6-flash}
+      - GEMINI_EMBEDDING_MODEL=${GEMINI_EMBEDDING_MODEL:-models/gemini-embedding-001}
+      - CHROMA_PERSIST_DIRECTORY=/app/chroma_db
+      - DOCUMENTS_DIR=/app/data/documents
+      - EMPLOYEES_FILE=/app/data/employees.json
+      - LEAVE_REQUESTS_FILE=/app/data/leave_requests.json
+      - FRONTEND_ORIGIN=http://localhost:5173
+      - RETRIEVAL_TOP_K=4
+      - RETRIEVAL_SCORE_THRESHOLD=0.30
+    volumes:
+      # Persist ChromaDB data between container restarts
+      - ./backend/chroma_db:/app/chroma_db
+      - ./backend/data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
