@@ -23,22 +23,71 @@ Built with **React + FastAPI + LangChain + ChromaDB + Google Gemini**.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture Diagram
 
-```
-React (Vite + Tailwind)
-        ↓
-FastAPI (Python 3.11+)
-        ↓
-LangChain Agent (Tool-Calling Loop)
-   ├── search_company_documents → ChromaDB → Gemini Embeddings
-   ├── get_employee_info        → employees.json
-   └── apply_leave              → employees.json + leave_requests.json
-        ↓
-Google Gemini 3.6 Flash (Final answer generation)
-```
+```mermaid
+flowchart TB
+    subgraph S1["1. 🖥️ Frontend (User Interaction)"]
+        UI["React Web App (Vite + Tailwind)"]
+        HOOK["useChat Hook / State"]
+        AXIOS["API Client (Axios)"]
+        UI --> HOOK --> AXIOS
+    end
 
-See [`docs/architecture.md`](docs/architecture.md) for detailed Mermaid diagrams.
+    subgraph S2["2. ⚙️ Backend API (FastAPI)"]
+        FASTAPI["FastAPI App (app/main.py)"]
+        ROUTE["POST /chat Endpoint"]
+        FASTAPI --> ROUTE
+    end
+
+    subgraph S3["3. 🤖 AI Agent Loop (LangChain)"]
+        AGENT["LangChain Tool-Calling Agent"]
+        MEMORY["In-Memory Conversation Store"]
+        AGENT <--> MEMORY
+    end
+
+    subgraph S4["4. 🧠 Large Language Model (Google Gemini)"]
+        LLM["Google Gemini 3.5 Flash Lite\n(Function Calling & Answer Synthesis)"]
+    end
+
+    subgraph S5["5. 🛠️ Agent Tools"]
+        T1["Tool 1: search_company_documents"]
+        T2["Tool 2: get_employee_info"]
+        T3["Tool 3: apply_leave"]
+    end
+
+    subgraph S6["6. 📚 Ingestion & Embedding Pipeline"]
+        DOCS["Company Documents\n(MD / TXT / PDF)"]
+        LOADER["Document Loader & Text Chunker\n(chunk_size=800, overlap=150)"]
+        EMBED["Google Gemini Embeddings\n(models/gemini-embedding-001)"]
+        DOCS --> LOADER --> EMBED
+    end
+
+    subgraph S7["7. 💾 Vector Database & Mock Stores"]
+        VDB[("ChromaDB Vector Store\n(./chroma_db)")]
+        EMP_DB[("Mock Employees Store\n(employees.json)")]
+        LEAVE_DB[("Leave Requests Store\n(leave_requests.json)")]
+    end
+
+    %% Frontend ↔ Backend Interaction
+    AXIOS <==>|"HTTP POST /chat (JSON Payload & Response)"| ROUTE
+    ROUTE --> AGENT
+
+    %% Agent ↔ LLM Interaction
+    AGENT <==>|"Binds Tools & Prompts"| LLM
+
+    %% Agent ↔ Tools Interaction
+    AGENT -->|"Decides & Invokes"| S5
+
+    %% Tools to Backend Services
+    T1 -->|"Similarity Search"| VDB
+    T2 -->|"Read Record"| EMP_DB
+    T3 -->|"Validate & Deduct"| EMP_DB
+    T3 -->|"Append Request"| LEAVE_DB
+
+    %% Ingestion to Vector DB
+    EMBED -->|"Store Vectors & Metadata"| VDB
+```
 
 ---
 
