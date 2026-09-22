@@ -75,5 +75,27 @@
     "reason": "Personal work",
     "status": "approved",
     "submitted_at": "2026-09-21T05:17:44.703011+00:00"
+  },
+  {
+    "request_id": "09869b32-adcc-44f7-aa36-76a13d97ccb6",
+    "employee_id": "EMP001",
+    "employee_name": "Rahul Sharma",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-07",
+    "days": 2,
+    "reason": "personal work",
+    "status": "approved",
+    "submitted_at": "2026-09-21T10:28:09.434066+00:00"
+  },
+  {
+    "request_id": "a9cdd06e-3459-4c43-83cc-2dee12fefc4c",
+    "employee_id": "EMP001",
+    "employee_name": "Rahul Sharma",
+    "start_date": "2026-10-06",
+    "end_date": "2026-10-07",
+    "days": 2,
+    "reason": "personal work",
+    "status": "approved",
+    "submitted_at": "2026-09-21T10:29:10.951374+00:00"
   }
 ]

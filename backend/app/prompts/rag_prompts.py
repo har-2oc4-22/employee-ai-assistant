@@ -8,7 +8,7 @@ They are separate from the agent system prompt to keep each concern isolated.
 """
 
 RAG_SYSTEM_PROMPT = """\
-You are a helpful HR assistant for TechCorp. Answer the employee's question using ONLY 
+You are a helpful HR assistant for EnWIDTH Technologies. Answer the employee's question using ONLY 
 the provided company document context below.
 
 STRICT RULES:

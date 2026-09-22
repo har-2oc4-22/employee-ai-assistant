@@ -1,4 +1,4 @@
-# Employee Benefits — TechCorp Pvt. Ltd.
+# Employee Benefits — EnWIDTH Technologies Pvt. Ltd.
 
 **Version:** 2.2  
 **Effective Date:** 1 April 2025  
@@ -8,7 +8,7 @@
 
 ## 1. Overview
 
-TechCorp is committed to the well-being of its employees and their families. The following benefits are available to all full-time confirmed employees unless otherwise noted.
+EnWIDTH Technologies is committed to the well-being of its employees and their families. The following benefits are available to all full-time confirmed employees unless otherwise noted.
 
 ---
 
@@ -62,7 +62,7 @@ TechCorp is committed to the well-being of its employees and their families. The
 
 - **Learning Allowance:** ₹25,000 per year for approved online courses, certifications, and books.
 - **Conference Attendance:** Employees can apply to attend up to 2 conferences per year with company sponsorship (subject to manager approval).
-- **Internal Training:** Free access to TechCorp's internal learning platform.
+- **Internal Training:** Free access to EnWIDTH Technologies's internal learning platform.
 
 ---
 
@@ -114,4 +114,4 @@ TechCorp is committed to the well-being of its employees and their families. The
 
 ---
 
-*For benefit queries, contact benefits@techcorp.com.*
+*For benefit queries, contact benefits@enwidth.com.*

@@ -1,4 +1,4 @@
-# IT & Information Security Policy — TechCorp Pvt. Ltd.
+# IT & Information Security Policy — EnWIDTH Technologies Pvt. Ltd.
 
 **Version:** 4.0  
 **Effective Date:** 1 January 2025  
@@ -8,7 +8,7 @@
 
 ## 1. Purpose
 
-This policy establishes rules and guidelines for the acceptable use of TechCorp's IT resources and the protection of company data and systems.
+This policy establishes rules and guidelines for the acceptable use of EnWIDTH Technologies's IT resources and the protection of company data and systems.
 
 ---
 
@@ -71,16 +71,16 @@ This policy establishes rules and guidelines for the acceptable use of TechCorp'
 ## 8. Email Security
 
 - Do not open attachments from unknown senders.
-- Report phishing emails to security@techcorp.com immediately.
+- Report phishing emails to security@enwidth.com immediately.
 - Do not click suspicious links; use the Phishing Alert button in Outlook.
-- TechCorp will **never** ask for your password via email.
+- EnWIDTH Technologies will **never** ask for your password via email.
 
 ---
 
 ## 9. Incident Reporting
 
 - All security incidents (lost device, suspicious email, data breach, unauthorised access) must be reported to the IT Security team within **1 hour** of discovery.
-- Email: security@techcorp.com | Hotline: +91-1800-TECH-SEC
+- Email: security@enwidth.com | Hotline: +91-1800-TECH-SEC
 - Failure to report a security incident is itself a policy violation.
 
 ---
@@ -115,4 +115,4 @@ This policy establishes rules and guidelines for the acceptable use of TechCorp'
 
 ---
 
-*For IT support: helpdesk@techcorp.com | For security incidents: security@techcorp.com*
+*For IT support: helpdesk@enwidth.com | For security incidents: security@enwidth.com*

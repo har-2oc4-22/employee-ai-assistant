@@ -4,8 +4,8 @@
     "name": "Rahul Sharma",
     "department": "Engineering",
     "position": "Software Engineer",
-    "email": "rahul.sharma@techcorp.com",
-    "leave_balance": 12,
+    "email": "rahul.sharma@enwidth.com",
+    "leave_balance": 8,
     "manager": "EMP004"
   },
   "EMP002": {
@@ -13,7 +13,7 @@
     "name": "Priya Patel",
     "department": "Human Resources",
     "position": "HR Manager",
-    "email": "priya.patel@techcorp.com",
+    "email": "priya.patel@enwidth.com",
     "leave_balance": 8,
     "manager": "EMP005"
   },
@@ -22,7 +22,7 @@
     "name": "Arjun Mehta",
     "department": "Finance",
     "position": "Financial Analyst",
-    "email": "arjun.mehta@techcorp.com",
+    "email": "arjun.mehta@enwidth.com",
     "leave_balance": 1,
     "manager": "EMP005"
   },
@@ -31,7 +31,7 @@
     "name": "Sneha Gupta",
     "department": "Engineering",
     "position": "Engineering Manager",
-    "email": "sneha.gupta@techcorp.com",
+    "email": "sneha.gupta@enwidth.com",
     "leave_balance": 10,
     "manager": null
   },
@@ -40,7 +40,7 @@
     "name": "Vikram Nair",
     "department": "Operations",
     "position": "COO",
-    "email": "vikram.nair@techcorp.com",
+    "email": "vikram.nair@enwidth.com",
     "leave_balance": 20,
     "manager": null
   }

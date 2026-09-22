@@ -1,4 +1,4 @@
-# Travel Policy — TechCorp Pvt. Ltd.
+# Travel Policy — EnWIDTH Technologies Pvt. Ltd.
 
 **Version:** 1.5  
 **Effective Date:** 1 January 2025  
@@ -8,7 +8,7 @@
 
 ## 1. Scope
 
-This policy applies to all TechCorp employees travelling on official company business, including client visits, conferences, training, and inter-office travel.
+This policy applies to all EnWIDTH Technologies employees travelling on official company business, including client visits, conferences, training, and inter-office travel.
 
 ---
 
@@ -89,4 +89,4 @@ This policy applies to all TechCorp employees travelling on official company bus
 
 ---
 
-*For queries on travel policy, contact finance@techcorp.com.*
+*For queries on travel policy, contact finance@enwidth.com.*

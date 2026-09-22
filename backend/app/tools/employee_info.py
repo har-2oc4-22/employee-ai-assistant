@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 @tool
 def get_employee_info(employee_id: str) -> str:
     """
-    Retrieve information about a TechCorp employee by their employee ID.
+    Retrieve information about an EnWIDTH Technologies employee by their employee ID.
 
     Use this tool whenever the user asks about:
     - Their own leave balance ("How many leaves do I have?")

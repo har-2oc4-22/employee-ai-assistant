@@ -1,4 +1,4 @@
-# Leave Policy — TechCorp Pvt. Ltd.
+# Leave Policy — EnWIDTH Technologies Pvt. Ltd.
 
 **Version:** 3.1  
 **Effective Date:** 1 January 2025  
@@ -8,7 +8,7 @@
 
 ## 1. Overview
 
-TechCorp Pvt. Ltd. ("the Company") recognises that employees need time away from work for rest, personal matters, and unforeseen circumstances. This policy defines the types of leave available, eligibility criteria, and the process for requesting leave.
+EnWIDTH Technologies Pvt. Ltd. ("the Company") recognises that employees need time away from work for rest, personal matters, and unforeseen circumstances. This policy defines the types of leave available, eligibility criteria, and the process for requesting leave.
 
 ---
 
@@ -81,7 +81,7 @@ TechCorp Pvt. Ltd. ("the Company") recognises that employees need time away from
 
 ## 10. Public Holidays
 
-- TechCorp observes **12 national public holidays** per year.
+- EnWIDTH Technologies observes **12 national public holidays** per year.
 - A list of public holidays is published at the beginning of each year by HR.
 - If a project requires working on a public holiday, a compensatory leave is granted.
 

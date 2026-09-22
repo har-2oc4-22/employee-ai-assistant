@@ -1,4 +1,4 @@
-# Work From Home (WFH) Policy — TechCorp Pvt. Ltd.
+# Work From Home (WFH) Policy — EnWIDTH Technologies Pvt. Ltd.
 
 **Version:** 2.0  
 **Effective Date:** 1 March 2025  
@@ -8,7 +8,7 @@
 
 ## 1. Purpose
 
-This policy outlines the guidelines for employees who wish to work from a location other than the official TechCorp office premises. The goal is to support work-life balance while maintaining productivity and collaboration standards.
+This policy outlines the guidelines for employees who wish to work from a location other than the official EnWIDTH Technologies office premises. The goal is to support work-life balance while maintaining productivity and collaboration standards.
 
 ---
 
@@ -91,4 +91,4 @@ Employees working from home are expected to:
 
 ---
 
-*This policy supersedes all previous Work From Home guidelines. Queries can be directed to hr@techcorp.com.*
+*This policy supersedes all previous Work From Home guidelines. Queries can be directed to hr@enwidth.com.*

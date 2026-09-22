@@ -1,4 +1,4 @@
-# Company FAQ — TechCorp Pvt. Ltd.
+# Company FAQ — EnWIDTH Technologies Pvt. Ltd.
 
 **Maintained by:** HR & Operations  
 **Last Updated:** September 2025
@@ -7,20 +7,20 @@
 
 ## General Questions
 
-**Q: What are TechCorp's working hours?**  
+**Q: What are EnWIDTH Technologies's working hours?**  
 A: Standard working hours are Monday to Friday, 9:00 AM to 6:00 PM IST (with a 1-hour lunch break). Flexible working arrangements may be available with manager approval.
 
 **Q: What is the dress code?**  
-A: TechCorp follows a smart-casual dress code. On client visit days or formal presentations, business professional attire is expected.
+A: EnWIDTH Technologies follows a smart-casual dress code. On client visit days or formal presentations, business professional attire is expected.
 
-**Q: Does TechCorp have a remote-first culture?**  
-A: TechCorp follows a hybrid work model. Employees are expected to be in the office at least 3 days per week and may work from home for up to 2 days per week with manager approval.
+**Q: Does EnWIDTH Technologies have a remote-first culture?**  
+A: EnWIDTH Technologies follows a hybrid work model. Employees are expected to be in the office at least 3 days per week and may work from home for up to 2 days per week with manager approval.
 
-**Q: Where are TechCorp's offices located?**  
-A: TechCorp has offices in Bangalore (Headquarters), Mumbai, Delhi, and Hyderabad. The Bangalore office is located at Brigade Tech Gardens, Outer Ring Road.
+**Q: Where are EnWIDTH Technologies's offices located?**  
+A: EnWIDTH Technologies has offices in Bangalore (Headquarters), Mumbai, Delhi, and Hyderabad. The Bangalore office is located at Brigade Tech Gardens, Outer Ring Road.
 
 **Q: How do I get an office access card?**  
-A: On your first day, the Admin team will issue your access card. Contact admin@techcorp.com if you lose your card.
+A: On your first day, the Admin team will issue your access card. Contact admin@enwidth.com if you lose your card.
 
 ---
 
@@ -33,7 +33,7 @@ A: Your laptop will be ready on your first day. IT will configure it with the re
 A: The standard probation period is 3 months. During this time, either party can terminate employment with 2 weeks' notice.
 
 **Q: Who is my HR point of contact?**  
-A: Your HR Business Partner (HRBP) will be introduced during onboarding. You can also reach the HR team at hr@techcorp.com.
+A: Your HR Business Partner (HRBP) will be introduced during onboarding. You can also reach the HR team at hr@enwidth.com.
 
 ---
 
@@ -43,12 +43,12 @@ A: Your HR Business Partner (HRBP) will be introduced during onboarding. You can
 A: Salaries are credited on the **last working day** of each month.
 
 **Q: How do I access my payslip?**  
-A: Payslips are available on the Employee Self-Service portal (ess.techcorp.com). Login with your company email.
+A: Payslips are available on the Employee Self-Service portal (ess.enwidth.com). Login with your company email.
 
 **Q: What is the annual appraisal cycle?**  
-A: TechCorp runs its annual appraisal cycle in **March–April** each year. Performance ratings are linked to salary revisions effective from April 1.
+A: EnWIDTH Technologies runs its annual appraisal cycle in **March–April** each year. Performance ratings are linked to salary revisions effective from April 1.
 
-**Q: Does TechCorp provide a joining bonus?**  
+**Q: Does EnWIDTH Technologies provide a joining bonus?**  
 A: Joining bonuses are offered to select candidates depending on the role and negotiation. Details are specified in the offer letter.
 
 ---
@@ -68,30 +68,30 @@ A: No. Work From Home requires at least 24 hours' advance approval from your dir
 
 ## Benefits & Perks
 
-**Q: Does TechCorp provide health insurance?**  
+**Q: Does EnWIDTH Technologies provide health insurance?**  
 A: Yes. All confirmed employees and their immediate family are covered under a Group Medical Insurance plan with ₹5 lakh sum insured.
 
 **Q: Is there a food allowance?**  
 A: Yes. Employees receive ₹2,600 per month as a meal allowance.
 
 **Q: Does the company sponsor higher education?**  
-A: TechCorp offers a Learning Allowance of ₹25,000 per year for approved courses and certifications. For full degree sponsorship, speak with your manager and HR.
+A: EnWIDTH Technologies offers a Learning Allowance of ₹25,000 per year for approved courses and certifications. For full degree sponsorship, speak with your manager and HR.
 
 **Q: Is there a referral programme?**  
-A: Yes! Refer a friend for a role at TechCorp and earn a referral bonus of ₹25,000 to ₹1,00,000 depending on the level.
+A: Yes! Refer a friend for a role at EnWIDTH Technologies and earn a referral bonus of ₹25,000 to ₹1,00,000 depending on the level.
 
 ---
 
 ## IT & Security
 
 **Q: How do I reset my company email password?**  
-A: Use the self-service password reset at identity.techcorp.com or contact IT helpdesk at helpdesk@techcorp.com.
+A: Use the self-service password reset at identity.enwidth.com or contact IT helpdesk at helpdesk@enwidth.com.
 
 **Q: Can I use personal devices to access company systems?**  
 A: Personal devices are not recommended. If necessary, install the company's MDM (Mobile Device Management) profile and VPN. Contact IT for setup.
 
 **Q: I received a suspicious email. What should I do?**  
-A: Click the "Phishing Alert" button in Outlook, or forward the email to security@techcorp.com. Do not click any links or download attachments.
+A: Click the "Phishing Alert" button in Outlook, or forward the email to security@enwidth.com. Do not click any links or download attachments.
 
 ---
 
@@ -108,4 +108,4 @@ A: Unused Earned Leave up to 15 days can be encashed at the time of exit. Sick L
 
 ---
 
-*For any questions not covered here, contact HR at hr@techcorp.com.*
+*For any questions not covered here, contact HR at hr@enwidth.com.*
