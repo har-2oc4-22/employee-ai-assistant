@@ -1,6 +1,6 @@
 # 🤖 RAG + Agentic Employee Assistant
 
-A production-quality AI assistant that helps TechCorp employees ask questions about company policies, look up their leave balance, and apply for leave — all through a natural language chat interface.
+A production-quality AI assistant that helps  employees ask questions about company policies, look up their leave balance, and apply for leave — all through a natural language chat interface.
 
 Built with **React + FastAPI + LangChain + ChromaDB + Google Gemini**.
 
