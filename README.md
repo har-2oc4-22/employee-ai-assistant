@@ -1,8 +1,20 @@
 # 🤖 RAG + Agentic Employee Assistant
 
-A production-quality AI assistant that helps  employees ask questions about company policies, look up their leave balance, and apply for leave — all through a natural language chat interface.
+A production-quality AI assistant that helps employees ask questions about company policies, look up their leave balance, and apply for leave — all through a natural language chat interface.
 
 Built with **React + FastAPI + LangChain + ChromaDB + Google Gemini**.
+
+---
+
+## 🌐 Live Demo
+
+| | URL |
+|---|---|
+| 🖥️ **Frontend (Live App)** | [https://employee-ai-frontend-jplp.onrender.com](https://employee-ai-frontend-jplp.onrender.com) |
+| ⚙️ **Backend API** | [https://employee-ai-backend-z1t3.onrender.com](https://employee-ai-backend-z1t3.onrender.com) |
+| 📖 **API Docs (Swagger)** | [https://employee-ai-backend-z1t3.onrender.com/docs](https://employee-ai-backend-z1t3.onrender.com/docs) |
+
+> ⚠️ **Note**: Hosted on Render's free tier. The backend may take **30–60 seconds to wake up** on the first request after a period of inactivity. Subsequent requests are fast.
 
 ---
 
