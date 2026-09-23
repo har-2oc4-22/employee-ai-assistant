@@ -1,0 +1,59 @@
+services:
+  # ── Backend: FastAPI + ChromaDB + LangChain ──────────────────────────────────
+  - type: web
+    name: employee-ai-backend
+    env: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && python scripts/ingest_documents.py --force
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false # Set your Gemini API key in Render Dashboard
+      - key: GEMINI_CHAT_MODEL
+        value: gemini-3.5-flash-lite
+      - key: GEMINI_EMBEDDING_MODEL
+        value: models/gemini-embedding-001
+      - key: FRONTEND_ORIGIN
+        value: "*"
+      - key: CHROMA_PERSIST_DIRECTORY
+        value: ./chroma_db
+      - key: CHROMA_COLLECTION_NAME
+        value: employee_documents
+      - key: RETRIEVAL_TOP_K
+        value: "4"
+      - key: RETRIEVAL_SCORE_THRESHOLD
+        value: "0.30"
+      - key: CHUNK_SIZE
+        value: "800"
+      - key: CHUNK_OVERLAP
+        value: "150"
+      - key: DOCUMENTS_DIR
+        value: ./data/documents
+      - key: EMPLOYEES_FILE
+        value: ./data/employees.json
+      - key: LEAVE_REQUESTS_FILE
+        value: ./data/leave_requests.json
+      - key: INGEST_SECRET
+        value: prod-ingest-secret-key
+
+  # ── Frontend: React (Vite + Tailwind CSS) ───────────────────────────────────
+  - type: web
+    name: employee-ai-frontend
+    env: static
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: employee-ai-backend
+          property: host
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
