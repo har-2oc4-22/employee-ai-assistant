@@ -35,6 +35,26 @@ Built with **React + FastAPI + LangChain + ChromaDB + Google Gemini**.
 
 ---
 
+## 🎯 Assessment Requirements & Implementation Matrix
+
+| Assessment Part | Requirement | Implementation & File Reference | Status |
+|---|---|---|---|
+| **Part 1: RAG Pipeline** | Document Loading & Chunking | `backend/app/rag/ingestion.py` (`chunk_size=800`, `overlap=150`) | ✅ Complete |
+| | Embeddings & Vector DB | `backend/app/rag/vector_store.py` (`gemini-embedding-001` + ChromaDB) | ✅ Complete |
+| | Relevance Filtering & Sources | `backend/app/rag/retriever.py` (`threshold=0.30`, citations) | ✅ Complete |
+| | Hallucination Prevention | Guardrails in `backend/app/prompts/rag_prompts.py` | ✅ Complete |
+| **Part 2: Agent Tools** | `search_company_documents` | `backend/app/tools/knowledge_search.py` | ✅ Complete |
+| | `get_employee_info` | `backend/app/tools/employee_info.py` | ✅ Complete |
+| | `apply_leave` | `backend/app/tools/apply_leave.py` | ✅ Complete |
+| | Mock Database Stores | `backend/data/employees.json` & `leave_requests.json` | ✅ Complete |
+| **Part 3: Agentic Workflow** | RAG-only / Tool-only / Multi-tool | LangChain tool calling agent in `backend/app/agent/agent.py` | ✅ Complete |
+| **Part 4: Context** | Multi-turn conversation memory | Session store in `backend/app/agent/state.py` | ✅ Complete |
+| **Part 5: Full Stack** | FastAPI Backend | `POST /chat`, `GET /employees`, CORS in `backend/app/main.py` | ✅ Complete |
+| | React Frontend | ChatGPT-inspired interface in `frontend/src/` | ✅ Complete |
+| **Bonus Features** | Docker setup, Test suite, Observability | `docker-compose.yml`, 4 `pytest` suites in `backend/tests/` | ✅ Extra Credit |
+
+---
+
 ## 🏗️ Architecture Diagram
 
 ```mermaid
@@ -513,6 +533,51 @@ docker-compose up --build
 # Ingest documents inside the running container:
 docker-compose exec backend python scripts/ingest_documents.py
 ```
+
+---
+
+## 🎓 Technical Deep Dive & Interview Q&A
+
+This section outlines the core technical architecture and answers the primary conceptual questions assessed during technical interviews.
+
+### 1. How does the RAG Pipeline work end-to-end?
+1. **Ingestion**: Markdown & PDF documents are loaded from `data/documents/` and split using `RecursiveCharacterTextSplitter`.
+2. **Embedding**: Text chunks are converted into dense vector representations (3072 dimensions) using Google Gemini's `models/gemini-embedding-001`.
+3. **Storage**: Vector embeddings and associated metadata (`source`, `chunk_index`) are stored in ChromaDB at `./chroma_db`.
+4. **Retrieval**: When a query arrives, it is embedded using the *exact same* embedding model. ChromaDB performs cosine similarity search to retrieve the top $K=4$ most relevant chunks.
+5. **Score Filtering**: Any chunk with a similarity score $< 0.30$ is discarded to prevent irrelevant noise.
+6. **Synthesis**: Remaining chunks are formatted as context and passed with the system prompt to Gemini, which synthesizes a grounded answer with citations.
+
+### 2. Why was this chunking strategy chosen (`chunk_size=800`, `chunk_overlap=150`)?
+- **Chunk Size 800 chars (~150-200 tokens)**: Company policies have structured paragraphs. 800 characters is the sweet spot that preserves full clauses (e.g. leave quotas, notice periods, approval workflows) without capturing unrelated adjacent topics.
+- **Overlap 150 chars (~30 tokens)**: Prevents context fragmentation across boundaries. If a sentence or rule spans two chunks, the overlap guarantees that at least one chunk has the full semantic context.
+- **Recursive Splitting**: Hierarchically splits on `\n\n` (paragraphs), `\n` (lines), and `. ` (sentences) before falling back to words, ensuring chunks respect human sentence structure.
+
+### 3. How does the Agent decide which tool to call?
+- We utilize Google Gemini's **native Function Calling / Tool Binding API** (`llm.bind_tools(...)`).
+- Each tool (`search_company_documents`, `get_employee_info`, `apply_leave`) defines a strict schema with parameter types and detailed docstrings explaining its purpose.
+- The LLM receives the user prompt + system prompt + conversation history + tool definitions. It reasons about intent using the **ReAct (Reason + Act)** pattern.
+- If intent requires external knowledge or state mutation, Gemini returns a tool call payload with extracted parameters.
+- Our Python runtime executes the function and injects the output back into the conversation context for final response generation.
+
+### 4. How do the Frontend and Backend communicate?
+- **State Management**: Frontend uses React custom hook `useChat` managing messages, loading state, employee context, and active `conversationId` (UUID).
+- **Transport**: Axios sends `POST /chat` with JSON payloads (`employee_id`, `message`, `conversation_id`).
+- **CORS & Resilience**: Backend uses `CORSMiddleware` with environment-controlled origins (`FRONTEND_ORIGIN`), structured HTTP exception handling, and normalized API base URLs.
+
+---
+
+## 👥 Mock Employee Database
+
+The system comes pre-configured with the following employee records in `backend/data/employees.json`:
+
+| Employee ID | Name | Department | Role | Leave Balance |
+|---|---|---|---|---|
+| `EMP001` | Rahul Sharma | Engineering | Senior Software Engineer | 12 days |
+| `EMP002` | Priya Patel | HR | HR Manager | 8 days |
+| `EMP003` | Amit Kumar | Product | Product Lead | 15 days |
+| `EMP004` | Sneha Reddy | Marketing | Marketing Specialist | 5 days |
+| `EMP005` | Vikram Singh | Sales | Account Executive | 10 days |
 
 ---
 
