@@ -42,8 +42,6 @@ services:
   - type: web
     name: employee-ai-frontend
     env: static
-    region: oregon
-    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
