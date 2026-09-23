@@ -16,7 +16,7 @@ services:
       - key: GEMINI_EMBEDDING_MODEL
         value: models/gemini-embedding-001
       - key: FRONTEND_ORIGIN
-        value: "*"
+        value: "https://employee-ai-frontend-jplp.onrender.com"
       - key: CHROMA_PERSIST_DIRECTORY
         value: ./chroma_db
       - key: CHROMA_COLLECTION_NAME
@@ -47,10 +47,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: employee-ai-backend
-          property: host
+        value: "https://employee-ai-backend-z1t3.onrender.com"
     routes:
       - type: rewrite
         source: /*
