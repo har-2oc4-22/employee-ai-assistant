@@ -12,7 +12,7 @@ services:
       - key: GEMINI_API_KEY
         sync: false # Set your Gemini API key in Render Dashboard
       - key: GEMINI_CHAT_MODEL
-        value: gemini-3.5-flash-lite
+        value: gemini-3.6-flash
       - key: GEMINI_EMBEDDING_MODEL
         value: models/gemini-embedding-001
       - key: FRONTEND_ORIGIN
