@@ -10,7 +10,7 @@ Built with **React + FastAPI + LangChain + ChromaDB + Google Gemini**.
 
 | | URL |
 |---|---|
-| 🖥️ **Frontend (Live App)** | [https://employee-ai-frontend-jplp.onrender.com](https://employee-ai-frontend-jplp.onrender.com) |
+| 🖥️ **Frontend (Live App)** | [https://employee-ai-frontend-m2h0.onrender.com](https://employee-ai-frontend-m2h0.onrender.com) |
 | ⚙️ **Backend API** | [https://employee-ai-backend-z1t3.onrender.com](https://employee-ai-backend-z1t3.onrender.com) |
 | 📖 **API Docs (Swagger)** | [https://employee-ai-backend-z1t3.onrender.com/docs](https://employee-ai-backend-z1t3.onrender.com/docs) |
 

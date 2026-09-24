@@ -16,7 +16,7 @@ services:
       - key: GEMINI_EMBEDDING_MODEL
         value: models/gemini-embedding-001
       - key: FRONTEND_ORIGIN
-        value: "https://employee-ai-frontend-jplp.onrender.com"
+        value: "https://employee-ai-frontend-m2h0.onrender.com"
       - key: CHROMA_PERSIST_DIRECTORY
         value: ./chroma_db
       - key: CHROMA_COLLECTION_NAME

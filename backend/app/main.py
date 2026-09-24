@@ -81,11 +81,21 @@ app = FastAPI(
 
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-# Allow the React frontend (http://localhost:5173) to call the API.
-# In production, set FRONTEND_ORIGIN to your production URL.
+# Allow the React frontend to call the API.
+# Supports comma-separated origins, localhost, and wildcard onrender.com subdomains.
+allowed_origins = [
+    origin.strip()
+    for origin in settings.FRONTEND_ORIGIN.split(",")
+    if origin.strip()
+]
+for default_origin in ["http://localhost:5173", "http://127.0.0.1:5173"]:
+    if default_origin not in allowed_origins:
+        allowed_origins.append(default_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_ORIGIN],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.onrender\.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
