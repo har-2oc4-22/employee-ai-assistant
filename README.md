@@ -11,7 +11,7 @@ Built with **React + FastAPI + LangChain + ChromaDB + Google Gemini**.
 | | URL |
 |---|---|
 | 🖥️ **Frontend (Live App)** | [https://employee-ai-frontend-m2h0.onrender.com](https://employee-ai-frontend-m2h0.onrender.com) |
-| ⚙️ **Backend API** | [https://employee-ai-backend-z1t3.onrender.com](https://employee-ai-backend-z1t3.onrender.com) |
+| ⚙️ **Backend API** | [https://employee-ai-backend-dpvu.onrender.com](https://employee-ai-backend-dpvu.onrender.com) |
 | 📖 **API Docs (Swagger)** | [https://employee-ai-backend-z1t3.onrender.com/docs](https://employee-ai-backend-z1t3.onrender.com/docs) |
 
 > ⚠️ **Note**: Hosted on Render's free tier. The backend may take **30–60 seconds to wake up** on the first request after a period of inactivity. Subsequent requests are fast.
